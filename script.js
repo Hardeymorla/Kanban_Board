@@ -108,19 +108,31 @@ observeTaskChanges();
 
 
 const createTask = (content) => {
+    // Extract first letters for initials or use a random emoji as a fallback
+    const initials = content
+        .split(' ')
+        .map(word => word[0].toUpperCase())
+        .join('')
+        .substring(0, 2);
+    const avatar = `<div class="avatar">${initials}</div>`;
+    
     const task = document.createElement('div');
     task.className = 'task';
     task.draggable = true;
     task.innerHTML = `
-    <div>${content}</div>
-    <menu>
-        <button data-edit><i class="bx bxs-edit"></i></button>
-        <button data-delete><i class="bx bxs-trash-alt"></i></button>
-    </menu> `;
+        <div class="task-content">
+            ${avatar}
+            <div>${content}</div>
+        </div>
+        <menu>
+            <button data-edit><i class="bx bxs-edit"></i></button>
+            <button data-delete><i class="bx bxs-trash-alt"></i></button>
+        </menu> `;
     task.addEventListener('dragstart', handleDragStart);
     task.addEventListener('dragend', handleDragEnd);
     return task;
-}
+};
+
 
 const createTaskInput = (text = " ") => {
     const input = document.createElement('div');
@@ -153,23 +165,34 @@ columnsContainer.addEventListener('click', (event) => {
     }
 })
 
-modal.addEventListener("submit", () => {
-    currentTask && currentTask.remove();
-    
-});
-modal.querySelector('#cancel').addEventListener("click", () => modal.close());
-modal.addEventListener("close", () => (currentTask.remove()));
+// Store and retrieve tasks from localStorage
+const saveTasks = () => {
+    const tasks = Array.from(document.querySelectorAll('.task')).map(task => task.innerText);
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+  };
+  
+  const loadTasks = () => {
+    const savedTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+    savedTasks.forEach(content => {
+      const task = createTask(content);
+      document.querySelector('.tasks').appendChild(task);
+    });
+  };
+  
+  // Call this at the start to load tasks from localStorage
+  loadTasks();
+  
+  // Handle task deletion
+  modal.addEventListener("submit", (event) => {
+      event.preventDefault(); // Prevent form reload
+      currentTask && currentTask.remove();
+      saveTasks(); // Update localStorage after deletion
+      modal.close();
+  });
+  
+  // Close modal without deleting
+  modal.querySelector('#cancel').addEventListener("click", () => modal.close());
+  modal.addEventListener("close", () => (currentTask = null));
+  
 
-
-const tasks = [
-    ["🛒 Buy groceries", "🐕 Walk the dog", "🧹 Clean the house"],
-    ["💻 Develop new feature", "🐞 Fix bugs", "🔍 Review pull requests"],
-    ["📊 Prepare presentation", "👥 Attend team meeting", "📝 Submit report"]
-  ];
-
-tasks.forEach((col, index) => {
-    for (const item of col) {
-        columns[index].querySelector('.tasks').appendChild(createTask(item));
-    }
-});
 

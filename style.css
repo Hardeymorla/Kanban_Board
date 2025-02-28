@@ -99,6 +99,26 @@ button:is(:active, :hover){
     cursor: move;
     transition: 0.3s;
 }
+.task-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
 .task.dragging{
     cursor: default;
     box-shadow: none;
